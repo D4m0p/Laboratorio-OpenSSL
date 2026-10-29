@@ -1,0 +1,203 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Laboratorio OpenSSL</title><link rel="stylesheet" href="estilo.css"></head><body>
+<!--PORTADA-->
+<div class="portada">
+  <div class="logos"><img src="logos/utp.png" alt="UTP"><div style="font-weight:bold;line-height:1.5">UNIVERSIDAD TECNOLÓGICA DE PANAMÁ<br>FACULTAD DE INGENIERÍA EN SISTEMAS COMPUTACIONALES<br>CAMPUS VICTOR LEVIS SASSO</div><img src="logos/fisc.png" alt="FISC"></div>
+  <div>
+    <p class="titulo" style="text-align:center">Laboratorio:<br>Seguridad en PHP con OpenSSL</p>
+    <p style="text-align:center;font-size:13pt">Programación Segura según OWASP – Protege los Datos</p>
+  </div>
+  <div style="line-height:1.7">
+    <p style="text-align:center"><b>Asignatura:</b> Desarrollo Web VII: PHP y MySQL<br><b>Docente:</b> Ing. Irina Fong<br><b>Período:</b> II Semestre 2026</p>
+    <p style="text-align:center"><b>Estudiantes</b><br>David Moreno — Cédula 8-1039-2423<br>Erick Elizondro — Cédula 8-1046-1786<br><b>Grupo:</b> 1S3122</p>
+    <p style="text-align:center"><b>Fecha de entrega:</b> 29 de octubre de 2026</p>
+  </div>
+</div>
+<!--CUERPO-->
+<h1>1. Introducción</h1>
+<p>Los datos sensibles, como contraseñas, números de tarjetas, registros de salud o secretos del negocio, deben protegerse tanto en tránsito como en reposo. La categoría <i>Cryptographic Failures</i> de OWASP describe lo que ocurre cuando esa protección falta o está mal implementada: información en texto plano, algoritmos obsoletos o llaves mal gestionadas.</p>
+<p>La criptografía aplicada resuelve dos necesidades. La <b>confidencialidad</b> consiste en que solo quien posee la llave correcta pueda leer los datos, y se logra con cifrado simétrico (una llave compartida, por ejemplo AES) o asimétrico (par de llaves pública y privada, por ejemplo RSA). La <b>integridad y autenticidad</b> consisten en comprobar que un mensaje no fue alterado y que lo emitió quien dice haberlo hecho, y se logran con funciones hash y firmas digitales: se calcula el hash del mensaje y se firma con la llave privada; cualquiera puede verificar la firma con la llave pública.</p>
+<p>PHP ofrece la extensión <b>OpenSSL</b>, orientada a certificados, protocolos de red y criptografía asimétrica, y la extensión <b>Sodium</b> (Libsodium, incluida desde PHP 7.2), diseñada para que la criptografía moderna sea segura por defecto. Este laboratorio implementa y documenta funciones con ambas.</p>
+
+<h1>2. Objetivo del laboratorio</h1>
+<p><b>Objetivo general.</b> Aplicar la extensión OpenSSL y librerías criptográficas modernas en PHP para proteger datos sensibles según los lineamientos de OWASP, mediante la ejecución de ejemplos prácticos y el análisis de su documentación técnica.</p>
+<p><b>Objetivos específicos.</b></p>
+<ul>
+<li>Generar un par de llaves RSA y un certificado X.509 autofirmado.</li>
+<li>Firmar mensajes digitalmente y verificar su integridad, incluyendo el caso de un mensaje alterado.</li>
+<li>Cifrar y descifrar información con AES-256-GCM y con RSA-OAEP.</li>
+<li>Documentar cada función utilizada y comparar OpenSSL con Libsodium mediante un ejemplo ejecutable.</li>
+</ul>
+
+<h1>3. Metodología y entorno</h1>
+<p>Los scripts se desarrollaron en PHP y se ejecutaron localmente con el servidor integrado de PHP (<code>php -S</code>), con las extensiones <code>openssl</code> y <code>sodium</code> habilitadas. Cada script incluye un formulario para recibir los datos, como pide la guía. El código completo está en el repositorio <code>https://github.com/D4m0p/Laboratorio-OpenSSL</code>.</p>
+<table><tr><th>Archivo</th><th>Función dentro del laboratorio</th></tr>
+<tr><td>comun.php</td><td>Funciones compartidas: lectura/creación de llaves, configuración de OpenSSL, plantilla HTML.</td></tr>
+<tr><td>generar_llaves.php</td><td>Genera el par RSA y el certificado X.509 (carpetas <code>keys/</code> y <code>keysCert/</code>).</td></tr>
+<tr><td>firma7.php</td><td>Firma y verifica con las llaves guardadas en disco.</td></tr>
+<tr><td>firmaOtra.php</td><td>Firma con un algoritmo a elección y verifica con la llave pública del certificado.</td></tr>
+<tr><td>FirmarMensaje.php</td><td>Emite un mensaje firmado y verifica uno recibido.</td></tr>
+<tr><td>Encriptacion.php</td><td>Cifrado simétrico (AES-256-GCM) y asimétrico (RSA-OAEP).</td></tr>
+<tr><td>sodium_ejemplo.php</td><td>Ejemplo con Libsodium: secretbox, Ed25519 y Argon2id.</td></tr></table>
+
+<h1>4. Capturas de pantalla con descripciones</h1>
+<h2>4.1 Pantalla de inicio</h2>
+<figure><img src="capturas/01_inicio.png"><figcaption><b>Captura 1.</b> Menú principal con acceso a cada script del laboratorio.</figcaption></figure>
+<h2>4.2 Generación de llaves y certificado</h2>
+<figure><img src="capturas/02_generar_llaves.png"><figcaption><b>Captura 2.</b> Se ingresaron los datos del certificado (país, organización, nombre común y correo) y se eligió RSA de 2048 bits. El resultado muestra la llave pública, el inicio de la llave privada (el archivo completo queda en <code>keys/</code>), el certificado X.509 en formato PEM y sus datos: sujeto, vigencia de 365 días, serie y algoritmo de firma.</figcaption></figure>
+<h2>4.3 firma7</h2>
+<figure><img src="capturas/03_firma7_formulario.png"><figcaption><b>Captura 3.</b> Formulario de firma7. Recibe el mensaje a firmar y el mensaje que se presentará para verificar.</figcaption></figure>
+<figure><img src="capturas/04_firma7_valida.png"><figcaption><b>Captura 4.</b> El mismo mensaje se firma y se presenta a verificación. La firma RSA con SHA-256 se muestra en Base64 junto con la llave pública usada, y la verificación resulta <b>válida</b>.</figcaption></figure>
+<figure><img src="capturas/05_firma7_alterada.png"><figcaption><b>Captura 5.</b> Se cambió el nombre en el mensaje presentado para verificar («David Moreno» por «Erick Elizondro»). Aunque la firma es la misma, la verificación resulta <b>inválida</b>: cualquier alteración del contenido, por pequeña que sea, invalida la firma.</figcaption></figure>
+<h2>4.4 firmaOtra</h2>
+<figure><img src="capturas/06_firmaOtra_sha512.png"><figcaption><b>Captura 6.</b> Firma con RSA y SHA-512. A diferencia de firma7, la verificación usa la llave pública extraída del certificado X.509, y se muestra la huella SHA-256 del certificado. La firma en hexadecimal mide 256 bytes, igual que el módulo RSA de 2048 bits, sin importar el hash elegido.</figcaption></figure>
+<h2>4.5 FirmarMensaje</h2>
+<figure><img src="capturas/07_firmarmensaje_firma.png"><figcaption><b>Captura 7.</b> Emisión de un mensaje firmado. La firma en Base64 es el valor que se envía junto con el mensaje.</figcaption></figure>
+<figure><img src="capturas/08_firmarmensaje_valida.png"><figcaption><b>Captura 8.</b> El receptor pega el mensaje y la firma recibidos y los verifica con la llave pública: resultado <b>válido</b>.</figcaption></figure>
+<figure><img src="capturas/09_firmarmensaje_alterada.png"><figcaption><b>Captura 9.</b> Un atacante cambia el monto de 100 a 10000 dólares conservando la firma original. La verificación resulta <b>inválida</b>, lo que demuestra la protección de la integridad.</figcaption></figure>
+<h2>4.6 Encriptación simple con OpenSSL</h2>
+<figure><img src="capturas/10_encriptacion.png"><figcaption><b>Captura 10.</b> Cifrado de un dato sensible (número de tarjeta de prueba). Arriba, AES-256-GCM: la llave se deriva de la contraseña con PBKDF2 (100 000 iteraciones y sal aleatoria), y el paquete contiene sal, IV, etiqueta de autenticación y texto cifrado. Abajo, RSA-OAEP: el texto se cifra con la llave pública y se descifra con la privada. En ambos casos el texto recuperado coincide con el original.</figcaption></figure>
+<h2>4.7 Ejemplo con Libsodium</h2>
+<figure><img src="capturas/11_sodium.png"><figcaption><b>Captura 11.</b> Tres operaciones de Sodium: cifrado autenticado con <code>secretbox</code> (un byte alterado es rechazado), firma Ed25519 de 64 bytes (no valida si el mensaje cambia) y hash de contraseña Argon2id (solo acepta la contraseña correcta).</figcaption></figure>
+
+<h1>5. Documentación técnica de funciones</h1>
+<p>Cada función se documenta con su nombre, propósito, parámetros, valor devuelto y el proceso criptográfico aplicado.</p>
+<h2>5.1 Funciones de OpenSSL</h2>
+
+<table><tr><th colspan="2">openssl_pkey_new(?array $options): OpenSSLAsymmetricKey|false</th></tr>
+<tr><td class="k">Propósito</td><td>Generar una llave privada nueva (y con ella su par público).</td></tr>
+<tr><td class="k">Parámetros</td><td><code>$options</code>: arreglo con <code>private_key_bits</code> (2048), <code>private_key_type</code> (<code>OPENSSL_KEYTYPE_RSA</code>) y, en Windows, <code>config</code> con la ruta de <code>openssl.cnf</code>.</td></tr>
+<tr><td class="k">Valor devuelto</td><td>Un recurso de llave (<code>OpenSSLAsymmetricKey</code>) o <code>false</code> si falla.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>Genera dos números primos grandes y calcula el módulo y los exponentes RSA. La seguridad depende del tamaño de la llave.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_pkey_export(key, &amp;$output, ?string $passphrase, ?array $options): bool</th></tr>
+<tr><td class="k">Propósito</td><td>Exportar la llave privada a texto PEM para guardarla en disco.</td></tr>
+<tr><td class="k">Parámetros</td><td>La llave, la variable que recibe el PEM, una contraseña opcional para protegerla y las opciones de configuración.</td></tr>
+<tr><td class="k">Valor devuelto</td><td><code>true</code> si exportó; <code>false</code> si falló.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>Serializa la llave en formato PKCS#8 codificado en Base64. Con contraseña, la cifra antes de exportarla.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_pkey_get_details(key): array|false</th></tr>
+<tr><td class="k">Propósito</td><td>Obtener datos de una llave, entre ellos su llave pública en PEM y su tamaño.</td></tr>
+<tr><td class="k">Parámetros</td><td>El recurso de la llave.</td></tr>
+<tr><td class="k">Valor devuelto</td><td>Arreglo con <code>bits</code>, <code>key</code> (PEM público), <code>type</code> y los componentes <code>rsa</code> (n, e).</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>No cifra; extrae la parte pública (módulo n y exponente e) que puede distribuirse libremente.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_pkey_get_private(key, ?string $passphrase) / openssl_pkey_get_public(key)</th></tr>
+<tr><td class="k">Propósito</td><td>Convertir un texto PEM, o un certificado, en un recurso de llave utilizable por las demás funciones.</td></tr>
+<tr><td class="k">Parámetros</td><td>El PEM (cadena), un certificado o una ruta <code>file://</code>; para la privada, la contraseña si está protegida.</td></tr>
+<tr><td class="k">Valor devuelto</td><td>Recurso de llave o <code>false</code>.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>Decodifica el Base64 y analiza la estructura ASN.1 de la llave; en <code>firmaOtra.php</code> la pública se extrae del certificado X.509.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_sign(string $data, &amp;$signature, key, int|string $algorithm = OPENSSL_ALGO_SHA1): bool</th></tr>
+<tr><td class="k">Propósito</td><td>Generar la firma digital de un mensaje.</td></tr>
+<tr><td class="k">Parámetros</td><td><code>$data</code>: mensaje; <code>$signature</code>: variable de salida con la firma binaria; la llave privada; el algoritmo de hash (<code>OPENSSL_ALGO_SHA256/384/512</code>). Se debe indicar explícitamente porque SHA-1 es el valor por defecto y está obsoleto.</td></tr>
+<tr><td class="k">Valor devuelto</td><td><code>true</code> si firmó, <code>false</code> si falló.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>Calcula el hash del mensaje y lo cifra con la llave privada RSA (esquema PKCS#1 v1.5). Solo quien tiene la privada puede producir la firma.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_verify(string $data, string $signature, key, int|string $algorithm): int|false</th></tr>
+<tr><td class="k">Propósito</td><td>Comprobar que una firma corresponde al mensaje y a la llave pública indicada.</td></tr>
+<tr><td class="k">Parámetros</td><td>El mensaje, la firma binaria, la llave pública y el mismo algoritmo usado al firmar.</td></tr>
+<tr><td class="k">Valor devuelto</td><td><code>1</code> firma válida, <code>0</code> inválida, <code>-1</code> o <code>false</code> error.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>Descifra la firma con la llave pública, calcula de nuevo el hash del mensaje y compara ambos valores. Si el mensaje cambió un solo bit, difieren.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_csr_new(array $dn, &amp;$privateKey, ?array $options) y openssl_csr_sign(csr, ?ca, key, int $days, ?array $options)</th></tr>
+<tr><td class="k">Propósito</td><td>Crear una solicitud de certificado (CSR) y firmarla para obtener un certificado X.509.</td></tr>
+<tr><td class="k">Parámetros</td><td>El nombre distinguido (<code>countryName</code>, <code>organizationName</code>, <code>commonName</code>, <code>emailAddress</code>), la llave privada, la vigencia en días (365) y las opciones. Con CA nula el certificado queda autofirmado.</td></tr>
+<tr><td class="k">Valor devuelto</td><td>La CSR y luego un recurso <code>OpenSSLCertificate</code>; <code>false</code> si falla.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>Une la llave pública con los datos de identidad y firma ese conjunto con la llave privada, vinculando identidad y llave.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_x509_export / openssl_x509_parse / openssl_x509_fingerprint</th></tr>
+<tr><td class="k">Propósito</td><td>Exportar el certificado a PEM, leer sus campos y calcular su huella.</td></tr>
+<tr><td class="k">Parámetros</td><td>El certificado (recurso o PEM) y, para la huella, el algoritmo (<code>sha256</code>).</td></tr>
+<tr><td class="k">Valor devuelto</td><td>PEM por referencia (<code>bool</code>), arreglo con sujeto, vigencia y serie, o la huella en hexadecimal.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>La huella es el hash del certificado en formato DER; sirve para reconocerlo sin comparar todo su contenido.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_encrypt / openssl_decrypt (AES-256-GCM)</th></tr>
+<tr><td class="k">Propósito</td><td>Cifrar y descifrar con una llave simétrica, con autenticación integrada.</td></tr>
+<tr><td class="k">Parámetros</td><td>Datos, método (<code>aes-256-gcm</code>), llave de 32 bytes, opciones (<code>OPENSSL_RAW_DATA</code>), IV de 12 bytes y la etiqueta <code>$tag</code> (salida al cifrar, entrada al descifrar).</td></tr>
+<tr><td class="k">Valor devuelto</td><td>El texto cifrado o descifrado; <code>false</code> si falla, por ejemplo si la etiqueta no coincide.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>AES en modo contador con autenticación Galois (GCM). Protege confidencialidad e integridad. El IV debe ser único por mensaje; aquí se genera con <code>random_bytes</code> y la llave se deriva de la contraseña con <code>hash_pbkdf2</code>.</td></tr></table>
+
+<table><tr><th colspan="2">openssl_public_encrypt / openssl_private_decrypt (RSA-OAEP)</th></tr>
+<tr><td class="k">Propósito</td><td>Cifrar con la llave pública y descifrar solo con la privada.</td></tr>
+<tr><td class="k">Parámetros</td><td>Datos, variable de salida, llave y relleno (<code>OPENSSL_PKCS1_OAEP_PADDING</code>).</td></tr>
+<tr><td class="k">Valor devuelto</td><td><code>true</code> o <code>false</code>; el resultado se entrega por referencia.</td></tr>
+<tr><td class="k">Proceso criptográfico</td><td>RSA con relleno OAEP, que añade aleatoriedad y evita ataques sobre el relleno antiguo. Solo sirve para datos cortos (menos que el tamaño de la llave), por lo que en la práctica se usa para proteger una llave simétrica.</td></tr></table>
+
+<h2>5.2 Funciones propias de los scripts</h2>
+<table><tr><th>Función</th><th>Propósito</th><th>Parámetros</th><th>Valor devuelto</th><th>Proceso</th></tr>
+<tr><td>config_openssl()</td><td>Preparar las opciones de OpenSSL y resolver el problema de <code>openssl.cnf</code> en Windows.</td><td><code>int $bits</code></td><td>Arreglo de opciones</td><td>Busca el archivo en las rutas comunes de XAMPP/WAMP y solo agrega <code>config</code> si existe.</td></tr>
+<tr><td>crear_par_de_llaves()</td><td>Generar y guardar el par de llaves en <code>keys/</code>.</td><td><code>int $bits</code></td><td>Nada (lanza excepción si falla)</td><td>Genera RSA y escribe <code>private_key.pem</code> y <code>public_key.pem</code>.</td></tr>
+<tr><td>cargar_llaves()</td><td>Obtener las llaves, creándolas si no existen.</td><td>Ninguno</td><td><code>[privadaPem, publicaPem]</code></td><td>Lectura de archivos PEM.</td></tr>
+<tr><td>resultado_verificacion()</td><td>Traducir el resultado de <code>openssl_verify</code> a un mensaje.</td><td><code>int $r</code></td><td>HTML</td><td>Interpreta 1, 0 y error.</td></tr></table>
+
+<h2>5.3 Resumen de los scripts probados</h2>
+<table><tr><th>Script</th><th>Qué prueba</th><th>Entradas del formulario</th><th>Salida</th></tr>
+<tr><td>firma7</td><td>Firma RSA-SHA256 con llaves de disco y verificación con la llave pública.</td><td>Mensaje a firmar; mensaje a verificar</td><td>Firma Base64, llave pública, resultado</td></tr>
+<tr><td>firmaOtra</td><td>Firma con SHA-256/384/512 y verificación con el certificado X.509.</td><td>Mensaje; algoritmo</td><td>Firma hexadecimal, huella del certificado, resultado</td></tr>
+<tr><td>FirmarMensaje</td><td>Flujo emisor–receptor con mensaje alterado.</td><td>Mensaje; mensaje y firma recibidos</td><td>Firma Base64; resultado</td></tr>
+<tr><td>Encriptacion</td><td>Cifrado simétrico y asimétrico.</td><td>Texto; contraseña</td><td>Paquete cifrado y texto recuperado</td></tr></table>
+
+<h1>6. Dificultades encontradas y solución</h1>
+<p>La guía advierte que a algunos estudiantes no les funciona la ruta de <code>openssl.cnf</code> en <i>Program Files</i> al generar llaves en Windows, porque <code>openssl_pkey_new</code> falla si el parámetro <code>config</code> apunta a un archivo inexistente. Se aplicaron las dos soluciones indicadas:</p>
+<ul>
+<li><b>Solución 1:</b> no indicar la ruta y dejar que PHP use el archivo interno de XAMPP.</li>
+<li><b>Solución 2:</b> detectar la ruta de forma dinámica. La función <code>config_openssl()</code> prueba las ubicaciones habituales (<code>C:\xampp\php\extras\ssl\openssl.cnf</code>, <code>D:\xampp\...</code> y la carpeta de <code>PHP_BINARY</code>) y solo agrega <code>config</code> si el archivo existe. En Linux no se necesita.</li>
+</ul>
+<p>Otra decisión de seguridad: las llaves privadas generadas no se suben al repositorio (están excluidas con <code>.gitignore</code>), porque publicar una llave privada anula su propósito. Cada instalación genera las suyas.</p>
+
+<h1>7. Investigación: Libsodium (Sodium)</h1>
+<h2>7.1 Qué es</h2>
+<p>Libsodium es una biblioteca de criptografía moderna, derivada de NaCl, mantenida como proyecto abierto. Está integrada en PHP como la extensión <code>sodium</code> desde PHP 7.2. Su enfoque es reducir los errores de uso: ofrece pocas funciones de alto nivel con parámetros seguros por defecto, en lugar de exponer todos los modos y rellenos como OpenSSL.</p>
+<h2>7.2 Principales algoritmos</h2>
+<table><tr><th>Uso</th><th>Función en PHP</th><th>Algoritmo</th></tr>
+<tr><td>Cifrado simétrico autenticado</td><td>sodium_crypto_secretbox</td><td>XSalsa20 + Poly1305</td></tr>
+<tr><td>Cifrado simétrico (AEAD)</td><td>sodium_crypto_aead_xchacha20poly1305_ietf_encrypt</td><td>XChaCha20-Poly1305</td></tr>
+<tr><td>Cifrado asimétrico</td><td>sodium_crypto_box, sodium_crypto_box_seal</td><td>X25519 + XSalsa20-Poly1305</td></tr>
+<tr><td>Firma digital</td><td>sodium_crypto_sign_detached / _verify_detached</td><td>Ed25519</td></tr>
+<tr><td>Hash de contraseñas</td><td>sodium_crypto_pwhash_str / _verify</td><td>Argon2id</td></tr>
+<tr><td>Hash genérico</td><td>sodium_crypto_generichash</td><td>BLAKE2b</td></tr>
+<tr><td>Intercambio de llaves</td><td>sodium_crypto_kx_*</td><td>X25519</td></tr></table>
+<h2>7.3 Ventajas de rendimiento y seguridad</h2>
+<ul>
+<li><b>Resistente a malos usos.</b> Genera y gestiona nonces y llaves de forma coherente y evita parámetros peligrosos (no hay modos ECB ni rellenos manuales).</li>
+<li><b>Algoritmos modernos.</b> Curvas elípticas (Curve25519, Ed25519) con llaves cortas de 32 bytes y firmas de 64 bytes, frente a RSA, que necesita 2048 bits o más para una seguridad comparable.</li>
+<li><b>Rendimiento.</b> Ed25519 y X25519 son mucho más rápidos que RSA para firmar y generar llaves, y ChaCha20 es rápido incluso sin aceleración por hardware de AES.</li>
+<li><b>Argon2id para contraseñas.</b> Es resistente a ataques con GPU porque consume memoria configurable, y es la opción recomendada por OWASP.</li>
+<li><b>Integridad incluida.</b> El cifrado es siempre autenticado: un texto cifrado alterado se rechaza (Captura 11).</li>
+<li><b>Sin configuración.</b> Viene con PHP, sin <code>openssl.cnf</code>.</li>
+</ul>
+<h2>7.4 Ejemplo implementado</h2>
+<p>El archivo <code>sodium_ejemplo.php</code> demuestra tres funciones criptográficas (resultados en la Captura 11). Fragmento principal:</p>
+<pre>$llave  = sodium_crypto_secretbox_keygen();
+$nonce  = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+$cifrado = sodium_crypto_secretbox($mensaje, $nonce, $llave);
+$claro   = sodium_crypto_secretbox_open($cifrado, $nonce, $llave); // false si fue alterado
+
+$par   = sodium_crypto_sign_keypair();
+$firma = sodium_crypto_sign_detached($mensaje, sodium_crypto_sign_secretkey($par));
+$ok    = sodium_crypto_sign_verify_detached($firma, $mensaje, sodium_crypto_sign_publickey($par));
+
+$hash = sodium_crypto_pwhash_str($password, SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                                 SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE);</pre>
+<h2>7.5 OpenSSL frente a Sodium</h2>
+<table><tr><th>Característica</th><th>OpenSSL</th><th>Libsodium (ext-sodium)</th></tr>
+<tr><td>Propósito principal</td><td>Protocolos de red, certificados digitales y criptografía asimétrica (RSA)</td><td>Criptografía moderna simétrica y asimétrica, firmas y hashing de alta seguridad</td></tr>
+<tr><td>Complejidad</td><td>Alta: rellenos, modos, longitudes, IV y etiquetas manuales</td><td>Baja: funciones simplificadas y seguras</td></tr>
+<tr><td>Tamaño de firma</td><td>256 bytes (RSA-2048)</td><td>64 bytes (Ed25519)</td></tr>
+<tr><td>Certificados X.509</td><td>Sí</td><td>No</td></tr>
+<tr><td>Uso recomendado</td><td>HTTPS, certificados, interoperabilidad</td><td>Cifrado de datos en la base, contraseñas y firmas internas</td></tr></table>
+
+<h1>8. Conclusiones</h1>
+<p>El laboratorio permitió comprobar de forma práctica que la criptografía no es solo cifrar: cada operación responde a una propiedad distinta. La firma digital no oculta el mensaje, pero garantiza su integridad y origen, como mostraron las pruebas en las que cambiar una sola palabra del mensaje invalidó la firma. El cifrado AES-GCM y RSA-OAEP protege la confidencialidad, y GCM además detecta alteraciones.</p>
+<p>También se aprendió que los errores de implementación son un riesgo tan grande como los algoritmos débiles. En OpenSSL hay que elegir con cuidado el hash (no dejar SHA-1 por defecto), el relleno (OAEP), generar IV aleatorios y no reutilizarlos, derivar la llave de una contraseña con PBKDF2 y proteger las llaves privadas, que no deben guardarse en el repositorio. Esto coincide con la categoría <i>Cryptographic Failures</i> de OWASP.</p>
+<p>La comparación con Sodium mostró por qué se recomienda para datos en reposo y contraseñas: hace lo seguro por defecto y es más difícil de usar mal. OpenSSL sigue siendo necesario cuando se trabaja con certificados X.509 o con sistemas que exigen RSA. La dificultad con <code>openssl.cnf</code> en Windows nos enseñó a probar el código en distintos entornos y a resolver errores de configuración de forma independiente.</p>
+<p>En conjunto, la práctica mejoró nuestra comprensión de la protección de datos sensibles y de cuándo conviene cada herramienta.</p>
+
+<h1>9. Referencias</h1>
+<ul>
+<li>OWASP Top 10: A02 Cryptographic Failures, <i>owasp.org</i>.</li>
+<li>Manual de PHP: extensión OpenSSL y extensión Sodium, <i>php.net</i>.</li>
+<li>Documentación de Libsodium, <i>doc.libsodium.org</i>.</li>
+<li>Guía del laboratorio, Ing. Irina Fong, Universidad Tecnológica de Panamá, 2026.</li>
+</ul>
+</body></html>

@@ -1,0 +1,20 @@
+@page { size: Letter; margin: 2.2cm 2.2cm 2.4cm 2.2cm; }
+body { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; line-height: 1.45; color: #000; margin: 0; }
+h1 { font-size: 16pt; margin: 22px 0 8px; color: #14532d; border-bottom: 2px solid #14532d; padding-bottom: 4px; page-break-after: avoid; }
+h2 { font-size: 13pt; margin: 18px 0 6px; page-break-after: avoid; }
+p { margin: 6px 0; text-align: justify; }
+ul, ol { margin: 6px 0 6px 22px; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0 16px; font-size: 10.5pt; page-break-inside: avoid; }
+th, td { border: 1px solid #444; padding: 5px 8px; vertical-align: top; text-align: left; }
+th { background: #dcefe3; }
+td.k { width: 26%; font-weight: bold; background: #f3f8f5; }
+code, pre { font-family: "DejaVu Sans Mono", monospace; font-size: 9pt; }
+pre { background: #f2f4f6; border: 1px solid #cfd6dc; padding: 8px; white-space: pre-wrap; page-break-inside: avoid; }
+figure { margin: 10px 0 14px; text-align: center; page-break-inside: avoid; }
+figure img { max-width: 100%; max-height: 17.5cm; border: 1px solid #999; }
+figcaption { font-size: 10pt; text-align: justify; margin-top: 4px; }
+.portada { height: 22.5cm; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+.portada .logos { display: flex; justify-content: space-between; align-items: center; }
+.portada .logos img { height: 3.2cm; }
+.portada .titulo { font-size: 20pt; font-weight: bold; margin: 0 0 6px; }
+.salto { page-break-before: always; }
